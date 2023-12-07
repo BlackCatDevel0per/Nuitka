@@ -469,7 +469,7 @@ def addClangClPathFromMSVC(env):
 
 
 def isGccName(cc_name):
-    return (
+    return 'clang' not in cc_name and (
         "gcc" in cc_name
         or "g++" in cc_name
         or "gnu-cc" in cc_name
@@ -605,7 +605,7 @@ def getMsvcVersionString(env):
 
 
 def getMsvcVersion(env):
-    value = getMsvcVersionString(env)
+    value = getMsvcVersionString(env) or "14.38.33130"
 
     # TODO: Workaround for prompt being used.
     if value is None:
