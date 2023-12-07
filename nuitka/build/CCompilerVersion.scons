@@ -175,6 +175,10 @@ if "CXX" in os.environ:
 # Patch the compiler detection.
 Environment.Detect = getEnhancedToolDetect()
 
+# Because after call `createEnvironment` os.environ will change.
+_cc = os.environ.get("CC")
+_ccv = os.environ.get("CCVERSION")
+
 # Create Scons environment, the main control tool. Don't include "mingw" on
 # Windows immediately, we will default to MSVC if available.
 env = createEnvironment(
@@ -185,14 +189,12 @@ env = createEnvironment(
     no_deployment=(),
 )
 
-scons_details_logger.info("Initial CC: %r" % env.get("CC"))
-scons_details_logger.info(
-    "Initial CCVERSION: %r" % (env.get("CCVERSION"),),
-)
+env["CCVERSION"] = _ccv or env["CCVERSION"]
 
-if "CC" in os.environ:
+if _cc:
     # If the environment variable CC is set, use that.
-    env["CCVERSION"] = None
+    env["CC"] = _cc
+    env["CCVERSION"] = _ccv or None
 
     scons_details_logger.info("Overridden with environment CC: %r" % env["CC"])
 elif clangcl_mode:
@@ -204,6 +206,11 @@ elif clang_mode:
 
     env["CC"] = "clang"
     env["CCVERSION"] = None
+
+scons_details_logger.info("Initial CC: %r" % env.get("CC"))
+scons_details_logger.info(
+    "Initial CCVERSION: %r" % (env.get("CCVERSION"),),
+)
 
 # On Windows, in case MSVC was not found and not previously forced, use the
 # winlibs MinGW64 as a download, and use it as a fallback.
