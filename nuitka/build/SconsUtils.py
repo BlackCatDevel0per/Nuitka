@@ -469,7 +469,7 @@ def addClangClPathFromMSVC(env):
 
 
 def isGccName(cc_name):
-    return 'clang' not in cc_name and (
+    return "clang" not in cc_name and (
         "gcc" in cc_name
         or "g++" in cc_name
         or "gnu-cc" in cc_name
