@@ -605,7 +605,7 @@ def getMsvcVersionString(env):
 
 
 def getMsvcVersion(env):
-    value = getMsvcVersionString(env) or "14.38.33130"
+    value = getMsvcVersionString(env)
 
     # TODO: Workaround for prompt being used.
     if value is None:
