@@ -972,7 +972,7 @@ def reportCCompiler(env, context, output_func):
     elif isGccName(env.the_cc_name):
         cc_output = "%s %s" % (
             env.the_cc_name,
-            ".".join(str(d) for d in env.gcc_version),
+            ".".join(str(d) for d in myDetectVersion(env, env.the_cc_name)),
         )
     elif isClangName(env.the_cc_name):
         cc_output = "%s %s" % (

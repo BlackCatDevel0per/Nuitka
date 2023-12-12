@@ -30,13 +30,8 @@ from nuitka.__past__ import basestring, unicode
 from nuitka.containers.OrderedDicts import OrderedDict
 from nuitka.Tracing import scons_details_logger, scons_logger
 from nuitka.utils.Execution import executeProcess
-from nuitka.utils.FileOperations import (
-    getFileContentByLine,
-    getWindowsShortPathName,
-    isFilesystemEncodable,
-    openTextFile,
-)
-from nuitka.utils.Utils import isLinux, isMacOS, isPosixWindows, isWin32Windows
+from nuitka.utils.FileOperations import getFileContentByLine, openTextFile
+from nuitka.utils.Utils import isLinux, isMacOS, isPosixWindows
 
 
 def initScons():
@@ -474,7 +469,7 @@ def addClangClPathFromMSVC(env):
 
 
 def isGccName(cc_name):
-    return (
+    return "clang" not in cc_name and (
         "gcc" in cc_name
         or "g++" in cc_name
         or "gnu-cc" in cc_name
@@ -547,36 +542,32 @@ def scanSourceDir(env, dirname, plugins):
     # name.
     added_path = False
 
-    for filename_base in sorted(os.listdir(dirname)):
-        if filename_base.endswith(".h") and plugins and not added_path:
+    for filename in sorted(os.listdir(dirname)):
+        if filename.endswith(".h") and plugins and not added_path:
             # Adding path for source paths on the fly, spell-checker: ignore cpppath
             env.Append(CPPPATH=[dirname])
             added_path = True
 
         # Only C files are of interest here.
-        if not filename_base.endswith((".c", "cpp")) or not filename_base.startswith(
+        if not filename.endswith((".c", "cpp")) or not filename.startswith(
             ("module.", "__", "plugin.")
         ):
             continue
 
-        filename = os.path.join(dirname, filename_base)
+        filename = os.path.join(dirname, filename)
 
-        target_filename = filename
-
-        if isWin32Windows() and not isFilesystemEncodable(filename_base):
-            target_filename = getWindowsShortPathName(target_filename)
-            target_filename = os.path.normcase(target_filename)
+        target_file = filename
 
         # We pretend to use C++ if no C11 compiler is present.
         if env.c11_mode:
-            yield target_filename
+            yield filename
         else:
             if filename.endswith(".c"):
-                target_filename += "pp"  # .cpp" suffix then
+                target_file += "pp"  # .cpp" suffix then
 
-                os.rename(filename, target_filename)
+                os.rename(filename, target_file)
 
-            yield target_filename
+            yield target_file
 
 
 def makeCLiteral(value):
